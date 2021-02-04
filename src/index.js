@@ -1,13 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const dotenv = require('dotenv');
-dotenv.config();
+
 
 const app = express();
-app.use(bodyParser.json)
+//app.use(bodyParser.json)
 
 app.get('/', (req, res) => {
 	return res.send("Hello World!");
 })
 
-app.listen(process.env.PORT || 5000, '0.0.0.0');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Our app is running on port ${ PORT }`);
+});
