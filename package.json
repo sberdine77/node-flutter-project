@@ -4,16 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-	"test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node src/index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1"
   },
   "engines": {
-	"node": "12.20.1",
-	"npm": "6.14.10"
+    "node": "12.20.1",
+    "npm": "6.14.10"
   }
 }
