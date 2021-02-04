@@ -10,4 +10,4 @@ app.get('/', (req, res) => {
 	return res.send("Hello World!");
 })
 
-app.listen(process.env.PORT || 5000);
+app.listen(process.env.PORT || 5000, '0.0.0.0');
