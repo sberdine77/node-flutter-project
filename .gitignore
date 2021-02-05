@@ -2,3 +2,8 @@
 npm-debug.log
 .DS_Store
 /*.env
+# dotenv environment variables file
+.env
+.env.test
+.env.example
+process.env
