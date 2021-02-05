@@ -5,7 +5,6 @@ const dotenv = require('dotenv/config');
 module.exports = {
 	async getToken(req, res) {
 		const { sendTo } = req.query;
-		console.log(`Here ${sendTo}`);
 		const token = crypto.randomBytes(4).toString('HEX');
 
 		// create reusable transporter object using the default SMTP transport
@@ -36,5 +35,9 @@ module.exports = {
 		// Preview only available when sending through an Ethereal account
 		console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 		return res.json({"Success": "success"});
+	},
+
+	async checkToken(req, res) {
+		const { token } = req.body;
 	}
 }
