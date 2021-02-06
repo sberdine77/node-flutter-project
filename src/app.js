@@ -4,7 +4,8 @@ const helmet = require('helmet');
 const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
-const v1 = require('./routes/v1/api')(passport);
+const global_admin = require("./fir_admin");
+const v1 = require('./routes/v1/api')(passport, global_admin);
 
 // const hookBearerStrategy = require('./app/middleware/passportBearerStrategy');
 
@@ -15,11 +16,11 @@ class AppController {
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
     this.express.use(morgan('dev'));
-    this.express.use(passport.initialize());
+	this.express.use(passport.initialize());
     // hookBearerStrategy(passport);
 
     this.routes();
-    this.middlewares();
+	this.middlewares();
   }
 
   middlewares() {
