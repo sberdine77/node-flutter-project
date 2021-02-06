@@ -4,8 +4,11 @@ const AuthController = require("../../controllers/AuthController");
 
 var APIRoutes = function (passport, admin) {
 	router.post('/sendToken', function(req, res) {
-		console.log("TESTE HERE");
 		AuthController.getToken(req, res, admin)
+	});
+
+	router.post('/checkToken', function(req, res) {
+		AuthController.checkToken(req, res, admin)
 	});
 	return router;
 }

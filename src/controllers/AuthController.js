@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const dotenv = require('dotenv/config');
+const { timeStamp } = require("console");
 
 module.exports = {
 	async getToken(req, res, admin) {
@@ -20,18 +21,6 @@ module.exports = {
 				console.log(error);
 				return res.status(400).send({ error: 'Token validation error' });
 				// Handle error
-			});
-		console.log("TEST");
-		await admin
-			.auth()
-			.getUser(uid)
-			.then((userRecord) => {
-			  // See the UserRecord reference doc for the contents of userRecord.
-			  console.log(`Successfully fetched user data: ${userRecord}`);
-			})
-			.catch((error) => {
-			  console.log('Error fetching user data:', error);
-			  return res.status(400).send({ error: 'Error fetching user data' });
 			});
 
 		const token = crypto.randomBytes(4).toString('HEX');
@@ -63,10 +52,77 @@ module.exports = {
 
 		// Preview only available when sending through an Ethereal account
 		console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
+		const tokensRef = admin.firestore().collection('tokens').doc(uid);
+		const data = {
+			token: `${token}`,
+			timestamp: admin.firestore.FieldValue.serverTimestamp()
+		}
+
+		await tokensRef.set(data);
+
 		return res.json({"Message": "success"});
 	},
 
-	async checkToken(req, res) {
-		const { token } = req.body;
+	async checkToken(req, res, admin) {
+		const { emailToken, idToken } = req.body;
+
+		var uid = "";
+		var uemail = "";
+		await admin
+			.auth()
+			.verifyIdToken(idToken)
+			.then((decodedToken) => {
+				uid = decodedToken.uid;
+				uemail = decodedToken.email;
+				// ...
+			})
+			.catch((error) => {
+				console.log("Token validation error");
+				console.log(error);
+				return res.status(400).send({ error: 'Token validation error' });
+				// Handle error
+			});
+		
+		const tokensRef = admin.firestore().collection('tokens').doc(uid);
+		const tokenDoc = await tokensRef.get();
+
+		if(!tokenDoc.exists) {
+			console.log("Token expired or never sended to this user.");
+			return res.status(400).send({ error: 'Token expired or never sended to this user.' });
+		} else {
+			console.log(`Success getting document`);
+
+			try {
+				if(tokenDoc.data()['token'] == emailToken) {
+					console.log("Token validated!");
+	
+					//CHANGE USER ROLE
+					const customClaims = {
+						authorized_user: true
+					}
+					await admin.auth()
+						.setCustomUserClaims(uid, customClaims)
+						.then(async () => {
+							const FieldValue =  admin.firestore.FieldValue;
+							await tokensRef.update({
+								token: FieldValue.delete()
+							});
+							await tokensRef.delete();
+							return res.json({"Message": "success"});
+						  })
+						.catch(error => {
+							console.log(`Error seting authorization claim ${error}`);
+							return res.status(400).send({ error: `${error}` });
+						});
+				} else {
+					console.log("Invalid token!");
+					return res.status(400).send({ error: 'Invalid token!' });
+				}
+			} catch (error) {
+				return res.status(400).send({ error: `${error}` });
+			}
+			
+		}
 	}
 }
