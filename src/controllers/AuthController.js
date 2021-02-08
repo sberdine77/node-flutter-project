@@ -109,6 +109,13 @@ module.exports = {
 								token: FieldValue.delete()
 							});
 							await tokensRef.delete();
+							await admin
+								.auth()
+								.getUser(uid)
+								.then((userRecord) => {
+									// The claims can be accessed on the user record.
+									console.log(`Authorized user: ${userRecord.customClaims['authorized_user']}`);
+							});
 							return res.json({"Message": "success"});
 						  })
 						.catch(error => {
